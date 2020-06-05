@@ -1,6 +1,7 @@
 package app.wvetro.core;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -13,8 +14,7 @@ public class evalx {
 	
 	 private JSONObject jsonreturn; 
 	 
-	
-	 @SuppressWarnings("unchecked")
+
 	public String eval(String expressionoriginal, String variable, String title, String description) {
 	    
 	   String varToString =  "{\"variavel\":"+ variable.toString() +"}";
@@ -28,8 +28,42 @@ public class evalx {
 		
 	   Expression exp = new Expression(expression);
 	   
+	   
+	   exp.addFunction(new AbstractFunction("ARRED50", 1) {
+		 	public BigDecimal eval(List<BigDecimal> parameters) {
+						
+		    			if (parameters.size() == 0) {
+							System.out.println("ARRED50 requires at least one parameter");
+						}
+						
+						BigDecimal value = new BigDecimal(0);
+						
+						for (BigDecimal parameter : parameters) {
+							value = value.add(parameter);
+						}					
+					     			    
+						BigDecimal medida 		    = value;
+						BigDecimal arredondamento   = new BigDecimal("50");
+						
+						BigDecimal divisor 		    = new BigDecimal(0);
+						BigDecimal resto            = new BigDecimal(0);
+						BigDecimal retorno          = new BigDecimal(0);
+						BigDecimal r          		= new BigDecimal(0);
+						
+						divisor = medida.divide(arredondamento).setScale(0, RoundingMode.DOWN);
+						resto   = medida.divide(arredondamento).subtract(divisor);
+						
+						if (resto.compareTo(r) > 0) {
+							divisor = divisor.add(new BigDecimal ("1"));
+						}
+						
+						retorno = divisor.multiply(arredondamento);					
+					    return retorno;
+		    }
+		});
+	   
+	   
 	   exp.addFunction(new AbstractFunction("TRUNC", 1) {
-		   // @Override
 		    public BigDecimal eval(List<BigDecimal> parameters) {
 						if (parameters.size() == 0) {
 							System.out.println("TRUNC requires at least one parameter");
@@ -47,7 +81,6 @@ public class evalx {
 		});
 	   
 	   exp.addFunction(new AbstractFunction("ARREDMAIOR", 1) {
-		  //  @Override
 		    public BigDecimal eval(List<BigDecimal> parameters) {
 						if (parameters.size() == 0) {
 							System.out.println("ARREDMAIOR requires at least one parameter");
@@ -73,9 +106,7 @@ public class evalx {
 			String name  = arr.getJSONObject(i).getString("name");
 			String value = arr.getJSONObject(i).getString("value");
 	
-			Class<?> clazz = value.getClass();
-			
-			if ((isNumeric(value,(Class<? extends Number>) clazz) == true ) && ( value != null )){
+			if ( value != null ){
 				exp.setVariable(name.trim(),value.trim());	
 			} else {
 				System.out.println(name + ":" + value);
@@ -161,7 +192,7 @@ public class evalx {
 		JSONObject item = new JSONObject();
 		
 		item.put("title",  title);
-		item.put("value",  value);
+		item.put("value",  value.toString());
 		item.put("description",  description);
 		item.put("originalexpression",  OriginalExpression);
 		item.put("usedexpresseon",  ExpresseonUsed);
