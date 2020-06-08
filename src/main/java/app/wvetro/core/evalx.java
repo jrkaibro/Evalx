@@ -29,6 +29,28 @@ public class evalx {
 	   Expression exp = new Expression(expression);
 	   
 	   
+	   exp.addFunction(new AbstractFunction("INT", 1) {
+		 	public BigDecimal eval(List<BigDecimal> parameters) {
+						
+		    			if (parameters.size() == 0) {
+							System.out.println("INT requires at least one parameter");
+						}
+						
+						BigDecimal value = new BigDecimal(0);
+						
+						for (BigDecimal parameter : parameters) {
+							value = value.add(parameter);
+						}					
+					     			    
+						BigDecimal retorno          = new BigDecimal(0);
+						
+						retorno = value.setScale(0, RoundingMode.DOWN);
+								
+					    return retorno;
+		    }
+		});
+	   
+	   
 	   exp.addFunction(new AbstractFunction("ARRED50", 1) {
 		 	public BigDecimal eval(List<BigDecimal> parameters) {
 						
@@ -174,6 +196,7 @@ public class evalx {
 			varaibleadjusted = varaibleadjusted.replaceAll("([AND]{3})","&&");
 			varaibleadjusted = varaibleadjusted.replaceAll("(\\W([OR]{2})\\W)","||");
 			varaibleadjusted = varaibleadjusted.replaceAll("([@]{1})","XXX");
+			varaibleadjusted = varaibleadjusted.replaceAll("([#]{1})","XXXX");
 			
 		
 		return varaibleadjusted;
